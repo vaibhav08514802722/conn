@@ -1,0 +1,51 @@
+# === Core ===
+fastapi==0.115.0
+uvicorn==0.30.6
+pydantic==2.9.2
+pydantic-settings==2.5.2
+python-dotenv==1.0.1
+
+# === LLM / AI ===
+openai
+langchain>=0.3,<0.4
+langchain-core>=0.3,<0.4
+langchain-community>=0.3,<0.4
+langchain-openai>=0.2
+langgraph>=0.2.50
+langgraph-checkpoint>=2.0
+langgraph-checkpoint-mongodb>=0.2
+
+# === Embeddings ===
+sentence-transformers
+langchain-huggingface
+
+# === Vector DB ===
+qdrant-client
+langchain-qdrant
+
+# === Graph DB (Mem0) ===
+neo4j
+langchain-neo4j
+
+# === Memory ===
+mem0ai
+pymongo
+
+# === Google GenAI (for Mem0 Gemini embedder) ===
+google-genai
+
+# === Market Data ===
+yfinance
+
+# === News ===
+requests
+httpx
+
+# === Scheduler ===
+apscheduler==3.10.4
+
+# === BM25 (Mem0 graph store) ===
+rank-bm25
+
+# === SSE ===
+sse-starlette

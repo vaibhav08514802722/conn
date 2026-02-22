@@ -6,6 +6,9 @@ from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_qdrant import QdrantVectorStore
 
+#langchain is a framework for building applications with LLMs. It provides tools for document loading, text splitting, embedding generation, and vector store management.
+#In this code snippet, we are using langchain to load a PDF document, split it into chunks, generate embeddings for the chunks using a HuggingFace model, and store the embeddings in a Qdrant vector store.
+
 
 load_dotenv()
 file_path = Path(__file__).parent / "nodejs.pdf"
