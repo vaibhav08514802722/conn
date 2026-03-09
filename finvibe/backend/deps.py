@@ -81,7 +81,15 @@ def get_qdrant_client():
     global _qdrant_client
     if _qdrant_client is None:
         from qdrant_client import QdrantClient
-        _qdrant_client = QdrantClient(url=settings.qdrant_url)
+        if settings.qdrant_api_key:
+            # Qdrant Cloud
+            _qdrant_client = QdrantClient(
+                url=settings.qdrant_url,
+                api_key=settings.qdrant_api_key,
+            )
+        else:
+            # Local Qdrant
+            _qdrant_client = QdrantClient(url=settings.qdrant_url)
     return _qdrant_client
 
 
@@ -110,11 +118,14 @@ def ensure_qdrant_collections():
 def get_vector_store(collection_name: str):
     """Get a LangChain QdrantVectorStore bound to an existing collection."""
     from langchain_qdrant import QdrantVectorStore
-    return QdrantVectorStore.from_existing_collection(
-        embedding=get_embeddings(),
-        url=settings.qdrant_url,
-        collection_name=collection_name,
-    )
+    kwargs = {
+        "embedding": get_embeddings(),
+        "url": settings.qdrant_url,
+        "collection_name": collection_name,
+    }
+    if settings.qdrant_api_key:
+        kwargs["api_key"] = settings.qdrant_api_key
+    return QdrantVectorStore.from_existing_collection(**kwargs)
 
 
 # ────────────────────────── Mem0 (Episodic Memory) ──────────────────────────
@@ -143,6 +154,26 @@ def get_memory():
                 },
             }
 
+        # Qdrant vector store config (supports both local and cloud)
+        if settings.qdrant_api_key:
+            qdrant_config = {
+                "provider": "qdrant",
+                "config": {
+                    "url": settings.qdrant_url,
+                    "api_key": settings.qdrant_api_key,
+                    "embedding_model_dims": EMBEDDING_DIM,
+                },
+            }
+        else:
+            qdrant_config = {
+                "provider": "qdrant",
+                "config": {
+                    "host": "localhost",
+                    "port": 6333,
+                    "embedding_model_dims": EMBEDDING_DIM,
+                },
+            }
+
         mem0_config = {
             "version": "v1.1",
             "embedder": {
@@ -153,22 +184,19 @@ def get_memory():
                 },
             },
             "llm": llm_config,
-            "graph_store": {
+            "vector_store": qdrant_config,
+        }
+
+        # Add Neo4j graph store only if configured (optional in production)
+        if settings.neo_uri and settings.neo_password:
+            mem0_config["graph_store"] = {
                 "provider": "neo4j",
                 "config": {
                     "url": settings.neo_uri,
                     "username": settings.neo_username,
                     "password": settings.neo_password,
                 },
-            },
-            "vector_store": {
-                "provider": "qdrant",
-                "config": {
-                    "host": "localhost",
-                    "port": 6333,
-                    "embedding_model_dims": EMBEDDING_DIM,
-                },
-            },
-        }
+            }
+
         _memory = Memory.from_config(mem0_config)
     return _memory

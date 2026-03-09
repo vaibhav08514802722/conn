@@ -23,6 +23,7 @@ class Settings(BaseSettings):
 
     # --- Qdrant ---
     qdrant_url: str = "http://localhost:6333"
+    qdrant_api_key: str = Field("", description="Qdrant Cloud API key (leave empty for local)")
     qdrant_market_collection: str = "market_research"
     qdrant_reflection_collection: str = "reflection_memory"
 
@@ -31,9 +32,16 @@ class Settings(BaseSettings):
     neo_username: str = "neo4j"
     neo_password: str = "finvibe123"
 
+    # --- Deployment ---
+    allowed_origins: str = Field(
+        "http://localhost:3000,http://127.0.0.1:3000",
+        description="Comma-separated CORS origins",
+    )
+
     # --- External APIs ---
     news_api_key: str = ""
     vapi_api_key: str = ""
+    fmp_api_key: str = Field("", description="Financial Modeling Prep key (free at financialmodelingprep.com)")
 
     # --- App Defaults ---
     shadow_portfolio_cash: float = 1_000_000.0

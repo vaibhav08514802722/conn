@@ -6,6 +6,7 @@ Start with: cd finvibe && python -m backend.main
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
+from backend.config import settings
 from backend.routes.agent import router as agent_router
 from backend.routes.market import router as market_router
 from backend.routes.portfolio import router as portfolio_router
@@ -22,10 +23,11 @@ app = FastAPI(
     version="0.3.0",
 )
 
-# CORS — allow Next.js frontend (localhost:3000)
+# CORS — allow origins from env (comma-separated) + localhost defaults
+_origins = [o.strip() for o in settings.allowed_origins.split(",") if o.strip()]
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000", "http://127.0.0.1:3000"],
+    allow_origins=_origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
