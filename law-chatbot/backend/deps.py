@@ -50,13 +50,23 @@ def get_qdrant_client():
     """
     Return the Qdrant client and ensure the law_documents collection exists.
     Creates the collection with cosine-distance 384-dim vectors if absent.
+    Supports both local Docker and Qdrant Cloud deployments.
     """
     global _qdrant_client
     if _qdrant_client is None:
         from qdrant_client import QdrantClient
         from qdrant_client.models import Distance, VectorParams
 
-        _qdrant_client = QdrantClient(url=settings.qdrant_url)
+        # Support both local (Docker) and cloud (Qdrant Cloud) deployments
+        if settings.qdrant_api_key:
+            _qdrant_client = QdrantClient(
+                url=settings.qdrant_url,
+                api_key=settings.qdrant_api_key,
+            )
+            print("✓ Qdrant Cloud connected")
+        else:
+            _qdrant_client = QdrantClient(url=settings.qdrant_url)
+            print("✓ Qdrant local connected")
 
         # Auto-create collection if it doesn't exist yet
         existing = [c.name for c in _qdrant_client.get_collections().collections]

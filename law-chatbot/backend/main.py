@@ -7,6 +7,8 @@ Phase 5 — FastAPI Application Entry Point
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
+from backend.config import settings
+
 app = FastAPI(
     title="LexBot — Law Chatbot API",
     description="RAG-based legal assistant powered by Groq / Llama 3.3 + Qdrant",
@@ -15,10 +17,11 @@ app = FastAPI(
     redoc_url="/redoc",
 )
 
-# ── CORS — allow Next.js dev server ──────────────────────────────────────────
+# ── CORS — allow Next.js dev server + production deployment ──────────────
+allowed_origins = [origin.strip() for origin in settings.allowed_origins.split(",")]
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000"],
+    allow_origins=allowed_origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

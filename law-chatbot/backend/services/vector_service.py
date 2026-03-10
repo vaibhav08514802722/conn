@@ -13,12 +13,17 @@ from backend.deps import get_embeddings, get_qdrant_client
 
 
 def _store() -> QdrantVectorStore:
-    """Connect to the existing law_documents collection."""
-    return QdrantVectorStore.from_existing_collection(
-        url=settings.qdrant_url,
-        collection_name=settings.qdrant_collection,
-        embedding=get_embeddings(),
-    )
+    """Connect to the existing law_documents collection. Supports both local and cloud Qdrant."""
+    kwargs = {
+        "url": settings.qdrant_url,
+        "collection_name": settings.qdrant_collection,
+        "embedding": get_embeddings(),
+    }
+    # Add API key if using Qdrant Cloud
+    if settings.qdrant_api_key:
+        kwargs["api_key"] = settings.qdrant_api_key
+    
+    return QdrantVectorStore.from_existing_collection(**kwargs)
 
 
 # ── Search ─────────────────────────────────────────────────────────────────────
@@ -58,12 +63,16 @@ def search_laws(query: str, k: int = 6, act_name: str = None) -> list:
 # ── Add documents ──────────────────────────────────────────────────────────────
 def add_documents(docs: list) -> int:
     """Batch-upsert LangChain Documents into Qdrant. Returns chunk count."""
-    QdrantVectorStore.from_documents(
-        documents=docs,
-        embedding=get_embeddings(),
-        url=settings.qdrant_url,
-        collection_name=settings.qdrant_collection,
-    )
+    kwargs = {
+        "documents": docs,
+        "embedding": get_embeddings(),
+        "url": settings.qdrant_url,
+        "collection_name": settings.qdrant_collection,
+    }
+    if settings.qdrant_api_key:
+        kwargs["api_key"] = settings.qdrant_api_key
+    
+    QdrantVectorStore.from_documents(**kwargs)
     return len(docs)
 
 

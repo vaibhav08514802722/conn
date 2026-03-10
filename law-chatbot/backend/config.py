@@ -18,6 +18,7 @@ class Settings(BaseSettings):
 
     # ── Vector store ─────────────────────────────────────────────────────────
     qdrant_url: str = "http://localhost:6333"
+    qdrant_api_key: str = ""  # For Qdrant Cloud (leave empty for local)
     qdrant_collection: str = "law_documents"
 
     # ── Database ──────────────────────────────────────────────────────────────
@@ -37,7 +38,8 @@ class Settings(BaseSettings):
 
     # ── Redis / job queue ────────────────────────────────────────────────────
     redis_url: str = "redis://localhost:6379"
-
+    # ── CORS ─────────────────────────────────────────────────────────────────
+    allowed_origins: str = "http://localhost:3000"  # Comma-separated list
     class Config:
         env_file = ".env"
         env_file_encoding = "utf-8"

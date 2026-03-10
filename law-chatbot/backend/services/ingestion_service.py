@@ -53,12 +53,16 @@ def ingest_pdf(file_path: str, metadata: dict) -> dict:
     chunks = splitter.split_documents(pages)
 
     # 4. Store all chunks in Qdrant
-    QdrantVectorStore.from_documents(
-        documents=chunks,
-        embedding=get_embeddings(),
-        url=settings.qdrant_url,
-        collection_name=settings.qdrant_collection,
-    )
+    kwargs = {
+        "documents": chunks,
+        "embedding": get_embeddings(),
+        "url": settings.qdrant_url,
+        "collection_name": settings.qdrant_collection,
+    }
+    if settings.qdrant_api_key:
+        kwargs["api_key"] = settings.qdrant_api_key
+    
+    QdrantVectorStore.from_documents(**kwargs)
 
     return {"doc_id": doc_id, "chunk_count": len(chunks), "status": "complete"}
 

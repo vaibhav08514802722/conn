@@ -1,0 +1,45 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# Render Deployment Configuration
+# Deploy backend API to Render.com (free tier available)
+# ─────────────────────────────────────────────────────────────────────────────
+
+services:
+  # FastAPI Backend
+  - type: web
+    name: law-chatbot-api
+    env: python
+    region: oregon
+    plan: free
+    branch: master
+    buildCommand: "pip install -r requirements.txt"
+    startCommand: "uvicorn backend.main:app --host 0.0.0.0 --port $PORT"
+    healthCheckPath: /
+    envVars:
+      - key: GROQ_API_KEY
+        sync: false
+      - key: QDRANT_URL
+        sync: false
+      - key: MONGO_URI
+        sync: false
+      - key: JWT_SECRET
+        generateValue: true
+      - key: QDRANT_COLLECTION
+        value: law_documents
+      - key: MONGO_DB
+        value: lawchatbot
+      - key: EMBEDDING_MODEL
+        value: sentence-transformers/all-MiniLM-L6-v2
+      - key: LLM_MODEL
+        value: llama-3.3-70b-versatile
+      - key: LLM_TEMPERATURE
+        value: "0.2"
+      - key: LLM_MAX_TOKENS
+        value: "2048"
+      - key: CHUNK_SIZE
+        value: "1000"
+      - key: CHUNK_OVERLAP
+        value: "200"
+      - key: RETRIEVAL_TOP_K
+        value: "6"
+      - key: REDIS_URL
+        value: redis://localhost:6379
